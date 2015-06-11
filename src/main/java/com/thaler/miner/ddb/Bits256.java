@@ -13,7 +13,7 @@ public class Bits256 implements Hashable {
 	private byte[] _bytes;
 
 	public static Bits256 create(byte[] bytes) {
-		
+
 		return new Bits256(bytes);
 
 	}
@@ -26,10 +26,23 @@ public class Bits256 implements Hashable {
 	public byte[] getBytes() {
 		return this._bytes;
 	}
-	
+
 	@Override
-	public String toString(){
+	public String toString() {
 		return Base64.encodeBase64URLSafeString(this._bytes);
+	}
+
+	public String toHex() {
+		return Hex.encodeHexString(this._bytes);
+	}
+
+	public String toBinary() {
+		StringBuilder sb = new StringBuilder();
+		for (int i = 0; i < this._bytes.length; i++) {
+			Byte b = this._bytes[i];
+			sb.append(String.format("%8s", Integer.toBinaryString(b & 0xFF)).replace(' ', '0'));
+		}
+		return sb.toString();
 	}
 
 	@Override

@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.log4j.Logger;
+import org.junit.Assert;
 import org.junit.Test;
 
 import com.google.common.collect.FluentIterable;
@@ -35,25 +36,25 @@ public class MerkleTests {
 
 	private static final Logger logger = Logger.getLogger(MerkleTests.class);
 
-//	@Test
-//	public void merkleRootTest() {
-//
-//		{
-//			Map<Bits256, MerkleTreeNode> merkleMap = Maps.newHashMap();
-//			FluentIterable<Hashable> baseData = createBaseData();
-//			MerkleTreeNode merkleRoot = MerkleUtil.createMerkleTree(baseData, merkleMap);
-//			logger.info("merkle tree Root: " + merkleRoot.combinedHash.toString());
-//			logger.info("tree root: " + merkleMap.get(merkleRoot.combinedHash));
-//			
-//			Hashable firstDataItem = baseData.first().get();
-//			Bits256 doubleHashOfFirstDataItem = CryptoUtil.hash(CryptoUtil.hash(firstDataItem), CryptoUtil.hash(firstDataItem));
-//			logger.info("first data item: " + merkleMap.get(doubleHashOfFirstDataItem));
-//		}
-//
-//	}
+	@Test
+	public void merkleRootTest() {
+
+		{
+			Map<Bits256, MerkleTreeNode> merkleMap = Maps.newHashMap();
+			FluentIterable<Hashable> baseData = createBaseData();
+			MerkleTreeNode merkleRoot = MerkleUtil.createMerkleTree(baseData, merkleMap);
+			logger.info("merkle tree Root: " + merkleRoot.combinedHash.toString());
+			logger.info("tree root: " + merkleMap.get(merkleRoot.combinedHash));
+			
+			Hashable firstDataItem = baseData.first().get();
+			Bits256 doubleHashOfFirstDataItem = CryptoUtil.hash(CryptoUtil.hash(firstDataItem), CryptoUtil.hash(firstDataItem));
+			logger.info("first data item: " + merkleMap.get(doubleHashOfFirstDataItem));
+		}
+
+	}
 	
 	@Test
-	public void merklePathTest() {
+	public void merklePathCreationTest() {
 		FluentIterable<Hashable> baseData = createBaseData();
 		Hashable firstDataItem = baseData.last().get();
 		Bits256 doubleHashOfFirstDataItem = CryptoUtil.hash(CryptoUtil.hash(firstDataItem), CryptoUtil.hash(firstDataItem));
@@ -69,6 +70,27 @@ public class MerkleTests {
 			logger.info(merkleTreeNode);
 		}
 		logger.info("----path end----");
+	}
+
+	@Test
+	public void merklePathValidationTest() {
+		FluentIterable<Hashable> baseData = createBaseData();
+		Hashable firstDataItem = baseData.last().get();
+		Bits256 doubleHashOfFirstDataItem = CryptoUtil.hash(CryptoUtil.hash(firstDataItem), CryptoUtil.hash(firstDataItem));
+		Map<Bits256, MerkleTreeNode> merkleMap = Maps.newHashMap();
+		MerkleTreeNode merkleRoot = MerkleUtil.createMerkleTree(baseData, merkleMap);
+		List<MerkleTreeNode> merklePath = MerkleUtil.createMerkePath(merkleMap, merkleRoot, doubleHashOfFirstDataItem);
+		
+		logger.info("merkle tree Root: " + merkleRoot.combinedHash.toString());
+		logger.info("first data item node: " + merkleMap.get(doubleHashOfFirstDataItem));
+		
+		logger.info("----path----");
+		for(MerkleTreeNode merkleTreeNode : merklePath){
+			logger.info(merkleTreeNode);
+		}
+		logger.info("----path end----");
+		
+		Assert.assertTrue(MerkleUtil.validateMerklePath(merklePath, merkleRoot));
 	}
 
 }

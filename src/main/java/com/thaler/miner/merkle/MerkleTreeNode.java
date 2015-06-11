@@ -21,6 +21,10 @@ public class MerkleTreeNode {
 	public Bits256 right;
 	public String name;
 	
+	public boolean isChild(MerkleTreeNode childNode){
+		return childNode.combinedHash.equals(left) || childNode.combinedHash.equals(right);
+	}
+	
 	
 	@Override
 	public String toString() {

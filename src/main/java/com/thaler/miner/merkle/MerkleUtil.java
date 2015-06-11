@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.apache.log4j.Logger;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Preconditions;
 import com.google.common.collect.FluentIterable;
 import com.google.common.collect.Lists;
@@ -38,6 +39,9 @@ public class MerkleUtil {
 	}
 
 	private static void addNodesToMap(FluentIterable<MerkleTreeNode> intermediateNodes, Map<Bits256, MerkleTreeNode> merkleTreeMap) {
+		if(merkleTreeMap == null){
+			return;
+		}
 		for(MerkleTreeNode merkleTreeNode : intermediateNodes) {
 			merkleTreeMap.put(merkleTreeNode.combinedHash, merkleTreeNode);
 		}
@@ -96,5 +100,26 @@ public class MerkleUtil {
 		return result;
 	}
 
+	public static boolean validateMerklePath(List<MerkleTreeNode> merklePath, MerkleTreeNode merkleRoot){
+		List<MerkleTreeNode> reverseMerklePath = Lists.reverse(merklePath);
+		if(reverseMerklePath.get(0).combinedHash.equals(merkleRoot)){
+			logger.info("merkle root not found");
+			return false;
+		}
+		FluentIterable<MerkleTreeNode> reverseMerklePathIterable = FluentIterable.from(reverseMerklePath);
+		
+		MerkleTreeNode previousNode = reverseMerklePathIterable.first().get();
+		logger.info("Merkle Root: " + previousNode);
+		for(MerkleTreeNode merkleTreeNode : reverseMerklePathIterable.skip(1)){
+			logger.info(merkleTreeNode);
+			if(!previousNode.isChild(merkleTreeNode)){
+				logger.warn("Invalid merkle path detected.\npreviousNode: " + previousNode + "\nmerkleTreeNode: " + merkleTreeNode);
+				return false;
+			}
+			previousNode = merkleTreeNode;
 
+		}
+		return true;
+		
+	}
 }
